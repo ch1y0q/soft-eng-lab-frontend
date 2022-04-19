@@ -1,5 +1,7 @@
 # soft-eng-lab-frontend
 
+Frontend for software engineering project.
+
 ## Project setup
 ```
 npm install
