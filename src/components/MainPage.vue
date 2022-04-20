@@ -59,11 +59,11 @@ export default {
   transition: color 1s ease-out;
   color: #4CB648;
   text-transform: none;
-  text-shadow: whitesmoke;
+  text-shadow: 1px 1px 3px #3db69e;
 }
 
 .front :hover{
-  transition: color 3s ease-in;
+  transition: color 1s ease-in;
   color: #2c3e50;
 }
 

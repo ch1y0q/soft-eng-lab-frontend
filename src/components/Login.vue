@@ -28,7 +28,7 @@
       </a-form-item>
 
       <a-form-item>
-        <a-button type="primary" html-type="submit" @click="handleSubmit('formState')">登录</a-button>
+        <a-button type="primary" html-type="submit" @click="handleSubmit()">登录</a-button>
       </a-form-item>
     </a-form>
   </div>
@@ -38,43 +38,38 @@
 // @ is an alias to /src
 
 import {message} from 'ant-design-vue';
-import {defineComponent} from 'vue';
+import {defineComponent, reactive} from 'vue';
 import axios from "axios";
+import {useRouter} from 'vue-router'
+import {useStore} from "vuex"
 
 export default defineComponent({
   name: "LogIn",
-  data() {
-    return {
-      formState: {
-        username: "",
-        password: "",
-        remember: true
-      },
-      name: ""
-    };
-  },
-  methods: {
-    onFinish: values => {
+
+  setup() {
+    const store = useStore()
+    const router = useRouter()
+    const formState = reactive({
+      username: "",
+      password: "",
+      remember: true
+    })
+
+    const to404 = (() => {
+      router.push({
+        name: 'NotFound'
+      })
+    })
+
+    const onFinish = (values) => {
       console.log('Success:', values);
-    },
+    }
 
-    onFinishFailed: errorInfo => {
+    const onFinishFailed = (errorInfo) => {
       console.log('Failed:', errorInfo);
-    },
+    }
 
-    handleSubmit() {
-      this.getLoginInfo();
-    },
-
-    getLoginInfo() {
-      let obj = {
-        username: this.formState.username,
-        password: this.formState.password,
-      };
-      axios.post("/api/auth/login", obj).then(res => this.getLoginInfoOk(res));
-    },
-
-    getLoginInfoOk(res) {
+    const getLoginInfoOk = (res) => {
       if (res.data) {
         switch (res.data.code) {
           case 5:
@@ -84,15 +79,42 @@ export default defineComponent({
             message.error("用户不存在！");
             break;
           case 0:
-            message.success("登录成功！");
-            //TODO: this.$router.push({ path: "/path/to/somewhere" });
+
+            axios.get("/api/auth/whoami").then((whoami_res) => {
+              if (!whoami_res || whoami_res.data.code) {
+                console.log(whoami_res);
+                message.error("未知错误!");
+              } else {
+                // set session data
+                store.commit("userLogin", whoami_res.data.data["nickname"],
+                    whoami_res.data.data["user_id"], whoami_res.data.data["user_type"], whoami_res.data.data["username"]);
+                message.success("登录成功！", 1);
+                to404();  // TODO
+              }
+            });
+
             break;
           default:
             message.error("未知错误！");
         }
       }
     }
-  }
+
+    const getLoginInfo = () => {
+      let obj = {
+        username: formState.username,
+        password: formState.password,
+      };
+      axios.post("/api/auth/login", obj).then((res) => getLoginInfoOk(res));
+    }
+
+    const handleSubmit = () => {
+      getLoginInfo();
+    }
+
+    return {handleSubmit, onFinish, onFinishFailed, getLoginInfo, getLoginInfoOk, formState}
+  },
+
 })
 ;
 
