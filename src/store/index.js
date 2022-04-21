@@ -6,13 +6,13 @@ const store = createStore({
             logged_in: false,
             nickname: "",
             userid: "",
-            user_type: null,
-            login_at: null,
+            user_type: undefined,
+            login_at: undefined,
             username: ""
         }
     }
     , mutations: {
-        userStatus(state, flag, nickname, userid, user_type, username) {
+        userStatus(state, [flag, nickname, userid, user_type, username]) {
             state.logged_in = flag
             state.nickname = nickname
             state.userid = userid
@@ -22,7 +22,7 @@ const store = createStore({
         },
 
         //获取登录状态
-        userLogin(state, nickname, userid, user_type, username) {
+        userLogin(state, [nickname, userid, user_type, username]) {
             state.logged_in = true
             state.nickname = nickname
             state.userid = userid

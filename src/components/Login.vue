@@ -55,18 +55,18 @@ export default defineComponent({
       remember: true
     })
 
-    const to404 = (() => {
+    const toWhoAmI = (() => {
       router.push({
-        name: 'NotFound'
+        name: 'whoami'
       })
     })
 
     const onFinish = (values) => {
-      console.log('Success:', values);
+      console.log('Login Success:', values);
     }
 
     const onFinishFailed = (errorInfo) => {
-      console.log('Failed:', errorInfo);
+      console.log('Login Failed:', errorInfo);
     }
 
     const getLoginInfoOk = (res) => {
@@ -82,20 +82,20 @@ export default defineComponent({
 
             axios.get("/api/auth/whoami").then((whoami_res) => {
               if (!whoami_res || whoami_res.data.code) {
-                console.log(whoami_res);
                 message.error("未知错误!");
               } else {
-                // set session data
-                store.commit("userLogin", whoami_res.data.data["nickname"],
-                    whoami_res.data.data["user_id"], whoami_res.data.data["user_type"], whoami_res.data.data["username"]);
+                // set session
+                store.commit("userLogin", [whoami_res.data.data["nickname"],
+                    whoami_res.data.data["user_id"], whoami_res.data.data["user_type"], whoami_res.data.data["username"]]);
                 message.success("登录成功！", 1);
-                to404();  // TODO
+                toWhoAmI();  // TODO
               }
             });
-
             break;
+
           default:
             message.error("未知错误！");
+            break;
         }
       }
     }
