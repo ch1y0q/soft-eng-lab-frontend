@@ -22,10 +22,8 @@ import {useRouter} from "vue-router";
 export default {
   name: 'MainPage',
   setup() {
-    console.log("in setup() in MainPage")
     const store = useStore()
     const router = useRouter()
-    console.log("store.state.logged_in: " + store.state.logged_in)
     if (store.state.logged_in) {
       router.push({
         name: 'whoami'

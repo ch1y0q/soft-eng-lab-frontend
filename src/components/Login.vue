@@ -88,7 +88,7 @@ export default defineComponent({
                 store.commit("userLogin", [whoami_res.data.data["nickname"],
                     whoami_res.data.data["user_id"], whoami_res.data.data["user_type"], whoami_res.data.data["username"]]);
                 message.success("登录成功！", 1);
-                toWhoAmI();  // TODO
+                toWhoAmI();
               }
             });
             break;

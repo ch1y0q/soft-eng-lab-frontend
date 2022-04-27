@@ -7,7 +7,7 @@
       <p>用户身份：{{ user_type_to_string(store.state.user_type) }}</p>
       <a-space :size=32>
         <a-button type="primary" html-type="submit" danger @click="handleLogout">登出</a-button>
-        <a-button type="primary" html-type="submit" @click="handleUserCenter">用户中心</a-button>
+        <a-button type="primary" html-type="submit" @click="handlePersonalCenter">用户中心</a-button>
       </a-space>
     </a-card>
   </div>
@@ -26,12 +26,18 @@ export default {
     const store = useStore()
     const router = useRouter()
 
-    console.log(store.state.username)
-    console.log(store.state.userid)
-    console.log(store.state.user_type)
+    // console.log(store.state.username)
+    // console.log(store.state.userid)
+    // console.log(store.state.user_type)
 
     const handleLogout = () => {
       axios.post("/api/auth/logout").then((res) => getLogoutInfoOk(res));
+    }
+
+    const handlePersonalCenter = () => {
+      router.push({
+        name: 'PersonalCenter'
+      })
     }
 
     const getLogoutInfoOk = (res) => {
@@ -46,7 +52,7 @@ export default {
       }
     }
 
-    return {store, handleLogout, user_type_to_string}
+    return {store, handlePersonalCenter, handleLogout, user_type_to_string}
   }
 }
 
