@@ -19,23 +19,23 @@
             </span>
             </template>
 
-            <a-menu-item name="create-teacher-menu-item" to="/member/CreateMember">
+            <a-menu-item name="create-teacher-menu-item" key="CreateMember">
               添加成员
             </a-menu-item>
 
-            <a-menu-item name="view-member-info-menu-item" to="/member/ViewMemberInfo">
+            <a-menu-item name="view-member-info-menu-item" key="ViewMemberInfo">
               查看成员信息
             </a-menu-item>
 
-            <a-menu-item name="update-member-info-menu-item" to="/member/UpdateMemberInfo">
+            <a-menu-item name="update-member-info-menu-item" key="UpdateMemberInfo">
               修改成员信息
             </a-menu-item>
 
-            <a-menu-item name="flip-page-view-member-info-menu-item" to="/member/FlipPageViewMemberInfo">
+            <a-menu-item name="flip-page-view-member-info-menu-item" key="FlipPageViewMemberInfo">
               分页查看成员信息
             </a-menu-item>
 
-            <a-menu-item name="delete-member-info-menu-item" to="/member/DeleteMemberInfo">
+            <a-menu-item name="delete-member-info-menu-item" key="DeleteMemberInfo">
               删除成员
             </a-menu-item>
           </a-sub-menu>
@@ -49,28 +49,33 @@
               <span>教师与课程信息维护</span>
             </span>
             </template>
-            <!--教师身份-->
-            <a-menu-item v-if="store.state.user_type === 3" name="edit-info-teacher-a-menu-item"
-                         to="/member/EditInfoTeacher">
-              编辑我的信息
+
+            <a-menu-item name="edit-info-teacher-a-menu-item"
+                         key="EditInfoTeacher">
+              <template v-if="store.state.user_type === 3">
+                <!--教师身份-->
+                编辑我的信息
+              </template>
+              <template v-else>
+                <!--管理员身份-->
+                编辑教师信息
+              </template>
             </a-menu-item>
-            <!--管理员身份-->
-            <a-menu-item v-else name="edit-info-teacher-a-menu-item" to="/member/EditInfoTeacher">
-              编辑教师信息
-            </a-menu-item>
-            <a-menu-item name="create-course-a-menu-item" to="/course/CreateCourse">
+
+
+            <a-menu-item name="create-course-a-menu-item" key="CreateCourse">
               创建课程
             </a-menu-item>
-            <a-menu-item name="bind-course-a-menu-item" to="/course/BindCourse">
+            <a-menu-item name="bind-course-a-menu-item" key="BindCourse">
               绑定课程
             </a-menu-item>
-            <a-menu-item name="unbind-course-a-menu-item" to="/course/UnbindCourse">
+            <a-menu-item name="unbind-course-a-menu-item" key="UnbindCourse">
               解绑课程
             </a-menu-item>
-            <a-menu-item name="view-bind-course-a-menu-item" to="/course/ViewBindCourse">
+            <a-menu-item name="view-bind-course-a-menu-item" key="ViewBindCourse">
               查看绑定课程
             </a-menu-item>
-            <a-menu-item name="list-selected-course-a-menu-item" to="/course/ListSelectedCourse">
+            <a-menu-item name="list-selected-course-a-menu-item" key="ListSelectedCourse">
               查看课程
             </a-menu-item>
           </a-sub-menu>
@@ -83,16 +88,16 @@
               <span>学生个人信息维护</span>
             </span>
             </template>
-            <a-menu-item name="edit-info-student-a-menu-item" to="/member/EditInfoStudent">
+            <a-menu-item name="edit-info-student-a-menu-item" key="EditInfoStudent">
               编辑我的信息
             </a-menu-item>
-            <a-menu-item name="list-selected-course-a-menu-item" to="/course/ListSelectedCourse">
+            <a-menu-item name="list-selected-course-a-menu-item" key="ListSelectedCourse">
               查看课程
             </a-menu-item>
-            <a-menu-item name="select-course-a-menu-item" to="/course/SelectCourse">
+            <a-menu-item name="select-course-a-menu-item" key="SelectCourse">
               选课
             </a-menu-item>
-            <a-menu-item name="drop-course-a-menu-item" to="/course/DropCourse">
+            <a-menu-item name="drop-course-a-menu-item" key="DropCourse">
               退选课程
             </a-menu-item>
           </a-sub-menu>
@@ -119,9 +124,11 @@
         </a-layout-header>
         <a-layout-content style="margin: 0 16px; min-height: 500px">
           <div class="subpage-router">
-            <transition mode="out-in">
-              <router-view/>
-            </transition>
+            <router-view v-slot="{ Component }">
+              <transition>
+                <component :is="Component"/>
+              </transition>
+            </router-view>
           </div>
         </a-layout-content>
 
@@ -183,6 +190,9 @@ export default defineComponent({
 
     const handleClick = e => {
       console.log('click', e);
+      router.push({
+        name: e.key
+      })
     };
 
     const logoutHandler = () => {

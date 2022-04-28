@@ -98,6 +98,9 @@ export default defineComponent({
             break;
         }
       }
+      else{
+        message.error("网络错误，请稍后再试")
+      }
     }
 
     const getLoginInfo = () => {

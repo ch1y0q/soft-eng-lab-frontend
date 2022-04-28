@@ -12,6 +12,7 @@
     "ant-design-vue": "^3.2.0",
     "axios": "^0.26.1",
     "core-js": "^3.8.3",
+    "lodash-es": "^4.17.21",
     "vue": "^3.2.33",
     "vue-router": "^4.0.14",
     "vue-style-loader": "^4.1.2",
