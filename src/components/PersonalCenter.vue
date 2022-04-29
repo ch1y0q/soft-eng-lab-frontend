@@ -240,7 +240,7 @@ export default defineComponent({
   height: 32px;
   margin: 16px;
   padding: 16px;
-  // background: rgba(255, 255, 255, 0.3);
+  overflow: hidden;
 }
 
 .logo span {

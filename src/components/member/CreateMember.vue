@@ -62,7 +62,7 @@
 <script>
 import axios from "axios";
 import {Form, message} from "ant-design-vue";
-import {user_type_to_string} from "@/components/utils/enums";
+import {ErrNo, user_type_to_string} from "@/components/utils/enums";
 import {computed, defineComponent, reactive} from "vue";
 import {useRouter} from "vue-router";
 import {toArray} from 'lodash-es';
@@ -83,19 +83,21 @@ export default defineComponent({
     const usernameValidator = (rule, value) => {
       const reg = /^[A-Za-z]{8,20}$/;
       if (!value) {
-        Promise.reject("用户名不能为空")
-      } else if (value.length < 8 || value.length > 20) {
-        Promise.reject("用户名长度应当在8~20之间")
+        return Promise.reject("用户名不能为空")
+      }
+      if (value.length < 8 || value.length > 20) {
+        return Promise.reject("用户名长度应当在8~20之间")
       } else if (!reg.test(value)) {
-        Promise.reject("用户名应当仅包含大小写字母")
+        return Promise.reject("用户名应当仅包含大小写字母")
       } else return Promise.resolve();
     }
 
     const passwordValidator = (rule, value) => {
-      const reg = /^(?![0-9]+$)(?![a-z]+$)(?![A-Z]+$)[0-9A-Za-z]{8,20}$/;
+      const reg = /^(?!\d+$)(?![a-z]+$)(?![A-Z]+$)[\dA-Za-z]{8,20}$/;
       if (!value) {
         return Promise.reject("密码不能为空")
-      } else if (value.length < 8 || value.length > 20) {
+      }
+      if (value.length < 8 || value.length > 20) {
         return Promise.reject("密码长度应当在8~20之间")
       } else if (!reg.test(value)) {
         return Promise.reject("密码应当同时包含大小写字母和数字")
@@ -106,6 +108,7 @@ export default defineComponent({
       username: [
         {
           required: true,
+          type: 'string',
           validator: usernameValidator,
           trigger: "blur"
         }
@@ -125,6 +128,7 @@ export default defineComponent({
       ],
       password: [
         {
+          required: true,
           type: 'string',
           validator: passwordValidator,
           trigger: "blur"
@@ -152,17 +156,17 @@ export default defineComponent({
     const createMemberOk = (res) => {
       if (res.data) {
         switch (res.data.code) {
-          case 0:
+          case ErrNo["OK"]:
             message.success("成功添加成员：" + res.data.data['user_id']);
             handleReset();
             break;
-          case 1:
+          case ErrNo["ParamInvalid"]:
             message.error("参数不合法");
             break;
-          case 2:
+          case ErrNo["UserHasExisted"]:
             message.error("用户名已存在");
             break;
-          case 255:
+          case ErrNo["UnknownError"]:
           default:
             message.error("未知错误");
         }

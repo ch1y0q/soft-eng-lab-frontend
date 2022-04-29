@@ -84,7 +84,7 @@ export default {
 .login-box {
   margin-top: 10%;
   margin-left: 30%;
-  padding: 35px;
+  padding: 15px;
   width: 40%;
   background: rgba(255, 255, 255, 0.9);
   box-shadow: 4px 11px 35px -14px rgb(0 0 0 / 50%);
