@@ -42,7 +42,7 @@ import {defineComponent, reactive} from 'vue';
 import axios from "axios";
 import {useRouter} from 'vue-router'
 import {useStore} from "vuex"
-import {ErrNo} from "@/components/utils/enums";
+import {ErrNo, ErrNo_to_message} from "@/components/utils/enums";
 
 export default defineComponent({
   name: "LogIn",
@@ -72,33 +72,20 @@ export default defineComponent({
 
     const getLoginInfoOk = (res) => {
       if (res.data) {
-        switch (res.data.code) {
-          case ErrNo["WrongPassword"]:
-            message.error("密码错误!");
-            break;
-
-          case ErrNo["UserNotExisted"]:
-            message.error("用户不存在！");
-            break;
-
-          case ErrNo["OK"]:
-            axios.get("/api/auth/whoami").then((whoami_res) => {
-              if (!whoami_res || whoami_res.data.code) {
-                message.error("未知错误!");
-              } else {
-                // set session
-                store.commit("userLogin", [whoami_res.data.data["nickname"],
-                  whoami_res.data.data["user_id"], whoami_res.data.data["user_type"], whoami_res.data.data["username"]]);
-                message.success("登录成功！", 1);
-                toWhoAmI();
-              }
-            });
-            break;
-
-          case ErrNo["UnknownError"]: // fall through
-          default:
-            message.error("未知错误！");
-            break;
+        if (res.data.code === ErrNo["OK"]) {
+          axios.get("/api/auth/whoami").then((whoami_res) => {
+            if (!whoami_res || whoami_res.data.code) {
+              message.error("未知错误!");
+            } else {
+              // set session
+              store.commit("userLogin", [whoami_res.data.data["nickname"],
+                whoami_res.data.data["user_id"], whoami_res.data.data["user_type"], whoami_res.data.data["username"]]);
+              message.success("登录成功！", 1);
+              toWhoAmI();
+            }
+          });
+        } else {
+          message.error(ErrNo_to_message(res.data.code))
         }
       } else {
         message.error("网络错误，请稍后再试")
@@ -110,7 +97,12 @@ export default defineComponent({
         username: formState.username,
         password: formState.password,
       };
-      axios.post("/api/auth/login", obj).then((res) => getLoginInfoOk(res));
+      axios.post("/api/auth/login", obj)
+          .then((res) => getLoginInfoOk(res))
+          .catch((error) => {
+            message.error("请检查网络状况")
+            console.error(error);
+          });
     }
 
     const handleSubmit = () => {

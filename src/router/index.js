@@ -6,6 +6,7 @@ const NotFound = () => import("@/components/404")
 const WhoAmI = () => import("@/components/WhoAmI")
 const PersonalCenter = () => import("@/components/PersonalCenter")
 const CreateMember = () => import("@/components/member/CreateMember")
+const ManageMember = () => import("@/components/member/ManageMember")
 
 const routes = [
     {path: "/", redirect: "/home"},
@@ -35,6 +36,11 @@ const routes = [
                 path: "/create-member",
                 name: "CreateMember",
                 component: CreateMember
+            },
+            {
+                path: "/manage-member",
+                name: "ManageMember",
+                component: ManageMember
             },
         ]
     },

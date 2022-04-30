@@ -1,68 +1,64 @@
 <template>
-  <div class="CreateMember">
-    <div class="main">
-      <div class="CreateMemberForm">
-        <a-form
-            :model="formStateRef"
-            :rules="ruleValidateRef"
-            @finishFailed="onFinishFailed"
-            @finish="onFinish"
-            :label-width="80"
-        >
-          <a-divider>成员信息录入</a-divider>
+  <div class="CreateMemberForm">
+    <a-form
+        :model="formStateRef"
+        :rules="ruleValidateRef"
+        @finishFailed="onFinishFailed"
+        @finish="onFinish"
+        :label-width="80"
+    >
+      <a-divider>成员信息录入</a-divider>
 
-          <a-form-item label="成员昵称" name="nickname">
-            <a-input
-                v-model:value="formStateRef.nickname"
-                placeholder="输入成员的昵称"
-                show-word-limit
-                :maxlength="20"
-            />
-          </a-form-item>
+      <a-form-item label="成员昵称" name="nickname">
+        <a-input
+            v-model:value="formStateRef.nickname"
+            placeholder="输入成员的昵称"
+            show-word-limit
+            :maxlength="20"
+        />
+      </a-form-item>
 
-          <a-form-item label="成员用户名" name="username">
-            <a-input
-                v-model:value="formStateRef.username"
-                placeholder="输入成员的用户名"
-                show-word-limit
-                :maxlength="20"
-            />
-          </a-form-item>
+      <a-form-item label="成员用户名" name="username">
+        <a-input
+            v-model:value="formStateRef.username"
+            placeholder="输入成员的用户名"
+            show-word-limit
+            :maxlength="20"
+        />
+      </a-form-item>
 
-          <a-form-item label="成员密码" name="password">
-            <a-input-password
-                v-model:value="formStateRef.password"
-                placeholder="输入成员的密码"
-                show-word-limit
-                :maxlength="20"
-            />
-          </a-form-item>
+      <a-form-item label="成员密码" name="password">
+        <a-input-password
+            v-model:value="formStateRef.password"
+            placeholder="输入成员的密码"
+            show-word-limit
+            :maxlength="20"
+        />
+      </a-form-item>
 
 
-          <a-form-item label="成员类型" name="user_type">
-            <a-select v-model:value="formStateRef.user_type" placeholder="选择成员类型">
-              <a-select-option :value="1">{{ user_type_to_string(1) }}</a-select-option>
-              <a-select-option :value="2">{{ user_type_to_string(2) }}</a-select-option>
-              <a-select-option :value="3">{{ user_type_to_string(3) }}</a-select-option>
-            </a-select>
-          </a-form-item>
+      <a-form-item label="成员类型" name="user_type">
+        <a-select v-model:value="formStateRef.user_type" placeholder="选择成员类型">
+          <a-select-option :value="1">{{ user_type_to_string(1) }}</a-select-option>
+          <a-select-option :value="2">{{ user_type_to_string(2) }}</a-select-option>
+          <a-select-option :value="3">{{ user_type_to_string(3) }}</a-select-option>
+        </a-select>
+      </a-form-item>
 
 
-          <a-form-item class="error-infos" :wrapper-col="{ span: 14, offset: 4 }" v-bind="errorInfos">
-            <a-button type="primary" @click.prevent="handleSubmit">创建</a-button>
-            <a-button style="margin-left: 10px" @click="handleReset">重置</a-button>
-          </a-form-item>
+      <a-form-item class="error-infos" :wrapper-col="{ span: 14, offset: 4 }" v-bind="errorInfos">
+        <a-button type="primary" @click.prevent="handleSubmit">创建</a-button>
+        <a-button style="margin-left: 10px" @click="handleReset">重置</a-button>
+      </a-form-item>
 
-        </a-form>
-      </div>
-    </div>
+    </a-form>
   </div>
 </template>
 
 <script>
 import axios from "axios";
 import {Form, message} from "ant-design-vue";
-import {ErrNo, user_type_to_string} from "@/components/utils/enums";
+import {ErrNo, ErrNo_to_message, user_type_to_string} from "@/components/utils/enums";
 import {computed, defineComponent, reactive} from "vue";
 import {useRouter} from "vue-router";
 import {toArray} from 'lodash-es';
@@ -155,20 +151,11 @@ export default defineComponent({
 
     const createMemberOk = (res) => {
       if (res.data) {
-        switch (res.data.code) {
-          case ErrNo["OK"]:
-            message.success("成功添加成员：" + res.data.data['user_id']);
-            handleReset();
-            break;
-          case ErrNo["ParamInvalid"]:
-            message.error("参数不合法");
-            break;
-          case ErrNo["UserHasExisted"]:
-            message.error("用户名已存在");
-            break;
-          case ErrNo["UnknownError"]:
-          default:
-            message.error("未知错误");
+        if (res.data.code === ErrNo["OK"]) {
+          message.success("成功添加成员：" + res.data.data['user_id']);
+          handleReset();
+        } else {
+          message.error(ErrNo_to_message(res.data.code))
         }
       } else {
         message.error("网络错误，请稍后再试")
