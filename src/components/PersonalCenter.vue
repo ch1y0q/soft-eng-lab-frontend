@@ -113,7 +113,8 @@
 
         <a-layout-content style="/*margin: 0 16px;*/ min-height: 500px">
           <div class="subpage-router">
-            <router-view v-slot="{ Component }">
+            <!-- :key is used to re-render component even if destination path is current path -->
+            <router-view v-slot="{ Component }" :key="$route.path">
               <transition>
                 <component :is="Component"/>
               </transition>

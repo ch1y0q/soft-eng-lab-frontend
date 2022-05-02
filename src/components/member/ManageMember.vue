@@ -13,7 +13,7 @@
           <template #extra>
             <a-space style="width: 100%">
               <a-button>编辑</a-button>
-              <a-button danger>删除</a-button>
+              <a-button danger @click="handleRemoveMember(item.user_id)">删除</a-button>
             </a-space>
           </template>
           <a-list-item-meta>
@@ -47,35 +47,40 @@
   </div>
 </template>
 <script>
-import {defineComponent} from 'vue';
+import {createVNode, defineComponent, reactive} from 'vue';
 import {user_type_to_string, user_type_to_color, ErrNo, ErrNo_to_message} from "@/components/utils/enums"
 import axios from "axios";
-import {message} from "ant-design-vue";
-
-let listData = [];
+import {message, Modal} from "ant-design-vue";
+import {ExclamationCircleOutlined} from "@ant-design/icons-vue";
+import {useStore} from "vuex";
 
 export default defineComponent({
   name: "ManageMember",
 
   setup() {
-    axios.get("/api/member/list")
-        .then((res) => getMemberListOk(res))
-        .catch((error) => {
-          message.error("请检查网络状况")
-          console.error(error);
-        });
+    const store = useStore()
 
-    const getMemberListOk = (res) => {
-      if (res.data) {
-        if (res.data.code === ErrNo["OK"]) {
-          listData = Array.from(res.data.data["member_list"])
-        } else {
-          message.error(ErrNo_to_message(res.data.code))
-        }
+    let listData = reactive([])
 
-      } else {
-        message.error("网络错误")
-      }
+    const fetchAllItems = () => {
+      axios.get("/api/member/list")
+          .then((res) => {
+                if (res.data) {
+                  if (res.data.code === ErrNo["OK"]) {
+                    listData.length = 0
+                    listData.push(...Array.from(res.data.data["member_list"]))
+                  } else {
+                    message.error(ErrNo_to_message(res.data.code))
+                  }
+                } else {
+                  message.error("网络错误")
+                }
+              }
+          )
+          .catch((error) => {
+            message.error("请检查网络状况")
+            console.error(error);
+          });
     }
 
     const pagination = {
@@ -87,14 +92,67 @@ export default defineComponent({
       pageSize: 10,
     };
 
+    /** Member remove */
+
+    const doRemoveMember = (user_id) => {
+      const obj = {user_id: user_id}
+      axios.post("/api/member/delete", obj)
+          .then((res) => {
+            if (res.data.code === ErrNo["OK"]) {
+              message.success("成功删除成员：" + user_id)
+            } else {
+              message.error("未能删除成员：" + ErrNo_to_message(res.data.code))
+            }
+          })
+          .catch((error) => {
+            message.error("请检查网络状况")
+            console.error(error);
+          });
+    }
+
+    const handleRemoveMember = (user_id) => {
+      if (user_id === store.state.userid) {
+        message.error("您不能删除当前正在使用的成员。")
+        return
+      }
+      Modal.confirm({
+        title: '是否删除成员？',
+        icon: createVNode(ExclamationCircleOutlined),
+        content: '您将要删除的成员ID是：' + user_id + "，此操作不可逆。",
+        cancelText: '取消',
+        okText: '确认',
+        async onOk() {
+          doRemoveMember(user_id);
+          await new Promise(r => setTimeout(r, 1000));  // backend is slow
+          fetchAllItems();
+          await new Promise(r => setTimeout(r, 1000));  // backend is slow
+          // console.log(listData); // for debugging
+        },
+        onCancel() {
+          // do nothing
+        },
+      });
+
+    }
+
+    /** Load all items from backend */
+    console.log("fetchAllItems() in setup()")
+    fetchAllItems()
+
     return {
+      fetchAllItems,
       listData,
       pagination,
       user_type_to_string,
       user_type_to_color,
+      handleRemoveMember,
     };
   },
 
+  reload() {
+    console.log("reload() called")
+    this.fetchAllItems()
+  },
 });
 </script>
 
