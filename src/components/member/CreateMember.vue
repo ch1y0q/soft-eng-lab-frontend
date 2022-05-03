@@ -85,11 +85,13 @@ export default defineComponent({
         return Promise.reject("用户名长度应当在8~20之间")
       } else if (!reg.test(value)) {
         return Promise.reject("用户名应当仅包含大小写字母")
-      } else return Promise.resolve();
+      } else {
+        return Promise.resolve();
+      }
     }
 
     const passwordValidator = (rule, value) => {
-      const reg = /^(?!\d+$)(?![a-z]+$)(?![A-Z]+$)[\dA-Za-z]{8,20}$/;
+      const reg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d$@!%*?&._#-]{8,20}$/;
       if (!value) {
         return Promise.reject("密码不能为空")
       }

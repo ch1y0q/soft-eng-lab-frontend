@@ -12,7 +12,7 @@
         <a-list-item key="item.username" class="antd_list_item">
           <template #extra>
             <a-space style="width: 100%">
-              <a-button>编辑</a-button>
+              <a-button @click="handleUpdateMember(item.user_id, item.nickname)">编辑</a-button>
               <a-button danger @click="handleRemoveMember(item.user_id)">删除</a-button>
             </a-space>
           </template>
@@ -42,16 +42,34 @@
           </a-row>
 
         </a-list-item>
+
+        <a-modal v-model:visible="update_member_visible" title="修改成员信息" cancel-text="取消" ok-text="确定"
+                 @ok="handleUpdateMemberConfirmed">
+          <edit-outlined/>
+          <a-form
+              :model="formStateRef"
+              :label-width="80"
+          >
+            <a-form-item label="成员昵称" name="nickname">
+              <a-input
+                  v-model:value="formStateRef.nickname"
+                  placeholder="输入成员的昵称"
+                  show-word-limit
+                  :maxlength="20"
+              />
+            </a-form-item>
+          </a-form>
+        </a-modal>
       </template>
     </a-list>
   </div>
 </template>
 <script>
-import {createVNode, defineComponent, reactive} from 'vue';
+import {createVNode, defineComponent, reactive, ref} from 'vue';
 import {user_type_to_string, user_type_to_color, ErrNo, ErrNo_to_message} from "@/components/utils/enums"
 import axios from "axios";
 import {message, Modal} from "ant-design-vue";
-import {ExclamationCircleOutlined} from "@ant-design/icons-vue";
+import {EditOutlined, ExclamationCircleOutlined} from "@ant-design/icons-vue";
 import {useStore} from "vuex";
 
 export default defineComponent({
@@ -61,6 +79,16 @@ export default defineComponent({
     const store = useStore()
 
     let listData = reactive([])
+
+    let update_member_visible = ref(false)
+
+    const formStateRef = reactive({
+      user_id: "",
+      // username: "",
+      nickname: "",
+      // password: "",
+      // user_type: undefined,
+    })
 
     const fetchAllItems = () => {
       axios.get("/api/member/list")
@@ -121,22 +149,51 @@ export default defineComponent({
         content: '您将要删除的成员ID是：' + user_id + "，此操作不可逆。",
         cancelText: '取消',
         okText: '确认',
+        okButtonProps: {danger: true},
         async onOk() {
           doRemoveMember(user_id);
           await new Promise(r => setTimeout(r, 1000));  // backend is slow
           fetchAllItems();
           await new Promise(r => setTimeout(r, 1000));  // backend is slow
-          // console.log(listData); // for debugging
         },
         onCancel() {
           // do nothing
         },
       });
+    }
 
+
+    /** Member edit */
+    const doUpdateMember = (user_id, new_nickname) => {
+      const obj = {user_id: user_id, nickname: new_nickname}
+      axios.post("/api/member/update", obj)
+          .then((res) => {
+            if (res.data.code === ErrNo["OK"]) {
+              message.success("成功修改成员信息：" + user_id)
+            } else {
+              message.error("未能修改成员信息：" + ErrNo_to_message(res.data.code))
+            }
+          })
+          .catch((error) => {
+            message.error("请检查网络状况")
+            console.error(error);
+          });
+    }
+
+    const handleUpdateMember = (user_id, cur_nickname) => {
+      formStateRef.nickname = cur_nickname
+      formStateRef.user_id = user_id
+      update_member_visible.value = true
+    }
+
+    const handleUpdateMemberConfirmed = async () => {
+      doUpdateMember(formStateRef.user_id, formStateRef.nickname)
+      update_member_visible.value = false
+      await new Promise(r => setTimeout(r, 1000));  // backend is slow
+      fetchAllItems();
     }
 
     /** Load all items from backend */
-    console.log("fetchAllItems() in setup()")
     fetchAllItems()
 
     return {
@@ -146,6 +203,11 @@ export default defineComponent({
       user_type_to_string,
       user_type_to_color,
       handleRemoveMember,
+      handleUpdateMember,
+      handleUpdateMemberConfirmed,
+      update_member_visible,
+      formStateRef,
+      doUpdateMember,
     };
   },
 
@@ -153,6 +215,10 @@ export default defineComponent({
     console.log("reload() called")
     this.fetchAllItems()
   },
+
+  components: {
+    EditOutlined,
+  }
 });
 </script>
 
