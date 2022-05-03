@@ -10,7 +10,7 @@
         >
           <div class="logo" v-if="!collapsed"><span>vCourse</span></div>
           <!--管理员可见-->
-          <a-sub-menu name="admin-menus" v-if="store.state.user_type === 1" key="sub1">
+          <a-sub-menu name="member-menus" key="sub1">
             <template #title>
             <span>
               <user-outlined/>
@@ -18,13 +18,23 @@
             </span>
             </template>
 
-            <a-menu-item name="create-teacher-menu-item" key="CreateMember">
-              添加成员
-            </a-menu-item>
+            <!--管理员可见-->
+            <template v-if="store.state.user_type === 1">
+              <a-menu-item name="create-teacher-menu-item" key="CreateMember">
+                添加成员
+              </a-menu-item>
 
-            <a-menu-item name="manage-member-info-menu-item" key="ManageMember">
-              管理成员信息
-            </a-menu-item>
+              <a-menu-item name="manage-member-info-menu-item" key="ManageMember">
+                管理成员信息
+              </a-menu-item>
+            </template>
+
+            <!--教师或学生可见-->
+            <template v-if="store.state.user_type === 3 || store.state.user_type === 2">
+              <a-menu-item name="manage-my-member-info-menu-item" key="ManageMyInfo">
+                编辑我的信息
+              </a-menu-item>
+            </template>
 
           </a-sub-menu>
 
@@ -38,19 +48,6 @@
             </span>
             </template>
 
-            <a-menu-item name="edit-info-teacher-a-menu-item"
-                         key="EditInfoTeacher">
-              <template v-if="store.state.user_type === 3">
-                <!--教师身份-->
-                编辑我的信息
-              </template>
-              <template v-else>
-                <!--管理员身份-->
-                编辑教师信息
-              </template>
-            </a-menu-item>
-
-
             <a-menu-item name="create-course-a-menu-item" key="CreateCourse">
               创建课程
             </a-menu-item>
@@ -63,8 +60,8 @@
             <a-menu-item name="view-bind-course-a-menu-item" key="ViewBindCourse">
               查看绑定课程
             </a-menu-item>
-            <a-menu-item name="list-selected-course-a-menu-item" key="ListSelectedCourse">
-              查看课程
+            <a-menu-item name="list-selected-course-a-menu-item" key="ManageCourse">
+              查看所有课程
             </a-menu-item>
           </a-sub-menu>
 
@@ -76,11 +73,8 @@
               <span>学生个人信息维护</span>
             </span>
             </template>
-            <a-menu-item name="edit-info-student-a-menu-item" key="EditInfoStudent">
-              编辑我的信息
-            </a-menu-item>
-            <a-menu-item name="list-selected-course-a-menu-item" key="ListSelectedCourse">
-              查看课程
+            <a-menu-item name="list-selected-course-a-menu-item" key="ManageCourse">
+              查看所有课程
             </a-menu-item>
             <a-menu-item name="select-course-a-menu-item" key="SelectCourse">
               选课

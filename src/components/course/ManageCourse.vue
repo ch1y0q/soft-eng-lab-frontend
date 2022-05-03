@@ -1,5 +1,5 @@
 <template>
-  <div class="ManageMemberList">
+  <div class="ManageCourseList">
     <a-list item-layout="vertical" size="default" :pagination="pagination" :data-source="listData">
       <!--
       <template #footer>
@@ -9,16 +9,16 @@
       </template>
       -->
       <template #renderItem="{ item }">
-        <a-list-item key="item.username" class="antd_list_item">
+        <a-list-item key="item.course_id" class="antd_list_item">
           <template #extra>
             <a-space style="width: 100%">
-              <a-button @click="handleUpdateMember(item.user_id, item.nickname)">编辑</a-button>
-              <a-button danger @click="handleRemoveMember(item.user_id)">删除</a-button>
+              <a-button @click="handleUpdateCourse(item.course_id, item.course_name)">编辑</a-button>
+              <a-button danger @click="handleRemoveCourse(item.course_id)">删除</a-button>
             </a-space>
           </template>
           <a-list-item-meta>
             <template #title>
-              <span style="font-size: x-large; text-align: left; ">{{ item.nickname }}</span>
+              <span style="font-size: x-large; text-align: left; ">{{ item.name }}</span>
             </template>
             <!-- avatar
             <template #avatar>
@@ -27,34 +27,30 @@
             -->
           </a-list-item-meta>
           <a-row :gutter="[50,40]">
-            <a-col :span="8"><span class="item_details_label">用户名</span></a-col>
-            <a-col :span="8"><span class="item_details_label">用户类型</span></a-col>
-            <a-col :span="8"><span class="item_details_label">用户ID</span></a-col>
+            <a-col :span="12"><span class="item_details_label">课程ID</span></a-col>
+            <a-col :span="12"><span class="item_details_label">教师ID</span></a-col>
           </a-row>
 
           <a-row :gutter="[50,40]" class="item_details_content">
-            <a-col :span="8">{{ item.username }}</a-col>
-            <a-col :span="8">
-              <a-tag :color="user_type_to_color(item.user_type)">{{ user_type_to_string(item.user_type) }}</a-tag>
-            </a-col>
-            <a-col :span="8">{{ item.user_id }}</a-col>
+            <a-col :span="12">{{ item.course_id }}</a-col>
+            <a-col :span="12">{{ item.teacher_id }}</a-col>
           </a-row>
 
         </a-list-item>
 
-        <a-modal v-model:visible="update_member_visible" title="修改成员信息" cancel-text="取消" ok-text="确定"
-                 @ok="handleUpdateMemberConfirmed">
+        <a-modal v-model:visible="update_course_visible" title="修改课程信息" cancel-text="取消" ok-text="确定"
+                 @ok="handleUpdateCourseConfirmed">
           <edit-outlined/>
           <a-form
               :model="formStateRef"
               :label-width="80"
           >
-            <a-form-item label="成员昵称" name="nickname">
+            <a-form-item label="课程名称" name="course_name">
               <a-input
-                  v-model:value="formStateRef.nickname"
-                  placeholder="输入成员的昵称"
+                  v-model:value="formStateRef.course_name"
+                  placeholder="输入课程的名称"
                   show-word-limit
-                  :maxlength="20"
+                  :maxlength="50"
               />
             </a-form-item>
           </a-form>
@@ -69,33 +65,31 @@ import {user_type_to_string, user_type_to_color, ErrNo, ErrNo_to_message} from "
 import axios from "axios";
 import {message, Modal} from "ant-design-vue";
 import {EditOutlined, ExclamationCircleOutlined} from "@ant-design/icons-vue";
-import {useStore} from "vuex";
+// import {useStore} from "vuex";
 
 export default defineComponent({
-  name: "ManageMember",
+  name: "ManageCourse",
 
   setup() {
-    const store = useStore()
+    // const store = useStore()
 
     let listData = reactive([])
 
-    let update_member_visible = ref(false)
+    let update_course_visible = ref(false)
 
     const formStateRef = reactive({
-      user_id: "",
-      // username: "",
-      nickname: "",
-      // password: "",
-      // user_type: undefined,
+      course_id: "",
+      course_name: "",
+      // teacher_id: "",
     })
 
     const fetchAllItems = () => {
-      axios.get("/api/member/list")
+      axios.get("/api/course/list")
           .then((res) => {
                 if (res.data) {
                   if (res.data.code === ErrNo["OK"]) {
                     listData.length = 0
-                    listData.push(...Array.from(res.data.data["member_list"]))
+                    listData.push(...Array.from(res.data.data["course_list"]))
                   } else {
                     message.error(ErrNo_to_message(res.data.code))
                   }
@@ -119,16 +113,16 @@ export default defineComponent({
       pageSize: 10,
     };
 
-    /** Member remove */
+    /** Course remove */
 
-    const doRemoveMember = (user_id) => {
-      const obj = {user_id: user_id}
-      axios.post("/api/member/delete", obj)
+    const doRemoveCourse = (course_id) => {
+      const obj = {course_id: course_id}
+      axios.post("/api/course/delete", obj)
           .then((res) => {
             if (res.data.code === ErrNo["OK"]) {
-              message.success("成功删除成员：" + user_id)
+              message.success("成功删除课程：" + course_id)
             } else {
-              message.error("未能删除成员：" + ErrNo_to_message(res.data.code))
+              message.error("未能删除课程：" + ErrNo_to_message(res.data.code))
             }
           })
           .catch((error) => {
@@ -137,20 +131,16 @@ export default defineComponent({
           });
     }
 
-    const handleRemoveMember = (user_id) => {
-      if (user_id === store.state.userid) {
-        message.error("您不能删除当前正在使用的成员。")
-        return
-      }
+    const handleRemoveCourse = (course_id) => {
       Modal.confirm({
-        title: '是否删除成员？',
+        title: '是否删除课程？',
         icon: createVNode(ExclamationCircleOutlined),
-        content: '您将要删除的成员ID是：' + user_id + "，此操作不可逆。",
+        content: '您将要删除的课程ID是：' + course_id + "，此操作不可逆。",
         cancelText: '取消',
         okText: '确认',
         okButtonProps: {danger: true},
         async onOk() {
-          doRemoveMember(user_id);
+          doRemoveCourse(course_id);
           await new Promise(r => setTimeout(r, 1000));  // backend is slow
           fetchAllItems();
           await new Promise(r => setTimeout(r, 1000));  // backend is slow
@@ -162,49 +152,33 @@ export default defineComponent({
     }
 
 
-    /** Member edit */
-    const doUpdateMember = async (user_id, new_nickname) => {
-      const obj = {user_id: user_id, nickname: new_nickname}
-      axios.post("/api/member/update", obj)
+    /** Course edit */
+    const doUpdateCourse = (course_id, new_name) => {
+      const obj = {course_id: course_id, name: new_name}
+      axios.post("/api/course/update", obj)
           .then((res) => {
             if (res.data.code === ErrNo["OK"]) {
-              message.success("成功修改成员信息：" + user_id)
+              message.success("成功修改课程信息：" + course_id)
             } else {
-              message.error("未能修改成员信息：" + ErrNo_to_message(res.data.code))
+              message.error("未能修改课程信息：" + ErrNo_to_message(res.data.code))
             }
           })
           .catch((error) => {
             message.error("请检查网络状况")
             console.error(error);
           });
-
-      // changed my info, need to update session data
-      if (user_id === store.state.userid) {
-        await new Promise(r => setTimeout(r, 500));  // backend is slow
-        axios.get("/api/auth/whoami").then((whoami_res) => {
-          if (!whoami_res || whoami_res.data.code) {
-            message.error("未知错误!");
-          } else {
-            // set session
-            store.commit("userLogin", [whoami_res.data.data["nickname"],
-              whoami_res.data.data["user_id"], whoami_res.data.data["user_type"], whoami_res.data.data["username"]]);
-          }
-        });
-
-        await new Promise(r => setTimeout(r, 500));
-      }
     }
 
-    const handleUpdateMember = (user_id, cur_nickname) => {
-      formStateRef.nickname = cur_nickname
-      formStateRef.user_id = user_id
-      update_member_visible.value = true
+    const handleUpdateCourse = (course_id, cur_name) => {
+      formStateRef.course_name = cur_name
+      formStateRef.course_id = course_id
+      update_course_visible.value = true
     }
 
-    const handleUpdateMemberConfirmed = async () => {
-      await doUpdateMember(formStateRef.user_id, formStateRef.nickname)
-      update_member_visible.value = false
-      await new Promise(r => setTimeout(r, 500));  // backend is slow
+    const handleUpdateCourseConfirmed = async () => {
+      doUpdateCourse(formStateRef.course_id, formStateRef.course_name)
+      update_course_visible.value = false
+      await new Promise(r => setTimeout(r, 1000));  // backend is slow
       fetchAllItems();
     }
 
@@ -217,12 +191,12 @@ export default defineComponent({
       pagination,
       user_type_to_string,
       user_type_to_color,
-      handleRemoveMember,
-      handleUpdateMember,
-      handleUpdateMemberConfirmed,
-      update_member_visible,
+      handleRemoveCourse,
+      handleUpdateCourse,
+      handleUpdateCourseConfirmed,
+      update_course_visible,
       formStateRef,
-      doUpdateMember,
+      doUpdateCourse,
     };
   },
 
@@ -239,7 +213,7 @@ export default defineComponent({
 
 <style scoped>
 
-.ManageMemberList {
+.ManageCourseList {
   max-width: 600px;
   margin: 0 auto;
 }
