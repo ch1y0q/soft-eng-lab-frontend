@@ -18,6 +18,7 @@ const ManageCourse = () => import("@/components/course/ManageCourse")
 
 const BindCourse = () => import("@/components/teacher/BindCourse")
 const UnbindCourse = () => import("@/components/teacher/UnbindCourse")
+const ViewBindCourse = () => import('@/components/teacher/ViewBindCourse')
 
 const routes = [
     {path: "/", redirect: "/home"},
@@ -103,6 +104,15 @@ const routes = [
                 path: "/unbind-course",
                 name: "UnbindCourse",
                 component: UnbindCourse,
+                meta: {
+                    requires_login: true,
+                    // permission: 6,
+                }
+            },
+            {
+                path: "/view-bind-course",
+                name: "ViewBindCourse",
+                component: ViewBindCourse,
                 meta: {
                     requires_login: true,
                     // permission: 6,

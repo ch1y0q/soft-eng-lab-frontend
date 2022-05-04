@@ -57,7 +57,8 @@
             <a-menu-item name="unbind-course-a-menu-item" key="UnbindCourse">
               解绑课程
             </a-menu-item>
-            <a-menu-item name="view-bind-course-a-menu-item" key="ViewBindCourse">
+            <!-- 仅教师可见 -->
+            <a-menu-item name="view-bind-course-a-menu-item" v-if="store.state.user_type === 3" key="ViewBindCourse">
               查看绑定课程
             </a-menu-item>
             <a-menu-item name="list-selected-course-a-menu-item" key="ManageCourse">
