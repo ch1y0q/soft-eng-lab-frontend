@@ -1,6 +1,6 @@
 <template>
   <div id="not-found-msg">
-    不好意思，我们没有您要找的页面。也许，检查一下网址再试试？
+    不好意思，您没有权限进入此页面。也许，换一个身份再试试？
   </div>
   <div>
     <a-button @click="$router.go(-2)">返回上一页</a-button>
@@ -9,7 +9,7 @@
 
 <script>
 export default {
-  name: "404NotFound"
+  name: "403Forbidden"
 }
 </script>
 
