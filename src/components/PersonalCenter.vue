@@ -77,9 +77,6 @@
             <a-menu-item name="list-selected-course-a-menu-item" key="ViewCourse">
               查看所有课程
             </a-menu-item>
-            <a-menu-item name="select-course-a-menu-item" key="SelectCourse">
-              选课
-            </a-menu-item>
             <a-menu-item name="drop-course-a-menu-item" key="DropCourse">
               退选课程
             </a-menu-item>

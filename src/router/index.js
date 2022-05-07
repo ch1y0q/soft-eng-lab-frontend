@@ -22,7 +22,15 @@ const BindCourse = () => import("@/components/teacher/BindCourse")
 const UnbindCourse = () => import("@/components/teacher/UnbindCourse")
 const ViewBindCourse = () => import('@/components/teacher/ViewBindCourse')
 
-const ViewCourse =() => import("@/components/student/ViewCourse")
+const ViewCourse = () => import("@/components/student/ViewCourse")
+
+/** Permission bits:
+ * 0b100: Allow admin
+ * 0b010: Allow teacher
+ * 0b001: Allow student
+ *
+ * e.g. Set permission to 6 => 0b110 => allow admin and teacher to access
+ * */
 
 const routes = [
     {path: "/", redirect: "/home"},
@@ -143,17 +151,18 @@ const routes = [
                 }
             },
             {
-                path:"/view-course",
-                name:"ViewCourse",
-                component:ViewCourse,
-                meta:{
-                    requires_login:true,
+                path: "/view-course",
+                name: "ViewCourse",
+                component: ViewCourse,
+                meta: {
+                    breadcrumbName: '查看所有课程',
+                    requires_login: true,
+                    permission: 1,
                 }
             },
         ]
     },
 
-    // 将匹配所有内容并将其放在 `$route.params.pathMatch` 下
     {
         path: '/403',
         name: 'Forbidden',
@@ -180,7 +189,7 @@ router.beforeEach((to, from, next) => {
             if (!to.meta['permission']) next();
             else if ((store.state.user_type === 1 && to.meta['permission'] & 0x4)   // admin
                 || (store.state.user_type === 3 && to.meta['permission'] & 0x2)     // teacher
-                || (store.state.user_type === 2 && to.meta['permission'] & 0x1)) {    // student
+                || (store.state.user_type === 2 && to.meta['permission'] & 0x1)) {  // student
 
                 console.log("authorization passed");
                 next();
