@@ -91,7 +91,7 @@
         <a-page-header
             style="border: 1px solid rgb(235, 237, 240); background: #fff;"
             title="个人中心"
-            :breadcrumb="{ routes }"
+            :breadcrumb=" { routes } "
             :sub-title="'各项操作，从这里出发。欢迎您，'+ store.state.nickname +'。'"
         >
           <template #tags>
@@ -161,13 +161,23 @@ export default defineComponent({
     );
 
     // routes for breadcrumb
-    const routes = [{
+    const routes = reactive([{
       path: 'home',
       breadcrumbName: '主页',
     }, {
       path: 'PersonalCenter',
       breadcrumbName: '个人中心',
-    }];
+    }]);
+
+    // dynamically update breadcrumb
+    watch(
+        () => router.currentRoute.value,
+        (_val) => {
+          routes[1].path = _val.name;
+          routes[1].breadcrumbName = _val.meta['breadcrumbName'];
+        },
+    );
+
 
     const handleClick = e => {
       // console.log('click', e);

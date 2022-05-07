@@ -1,10 +1,12 @@
 import {createRouter, createWebHashHistory} from "vue-router"
 import store from "@/store";
 
+const NotFound = () => import("@/components/404")
+const Forbidden = () => import("@/components/403")
+
 const MainPage = () => import("@/components/MainPage")
 
 const Login = () => import("@/components/Login")
-const NotFound = () => import("@/components/404")
 const WhoAmI = () => import("@/components/WhoAmI")
 
 const PersonalCenter = () => import("@/components/PersonalCenter")
@@ -28,16 +30,25 @@ const routes = [
         path: "/home",
         name: "MainPage",
         component: MainPage,
+        meta: {
+            breadcrumbName: '主页',
+        },
         children: [
             {
                 path: "/login",
                 name: "login",
-                component: Login
+                component: Login,
+                meta: {
+                    breadcrumbName: '登录',
+                },
             },
             {
                 path: "/whoami",
                 name: "whoami",
-                component: WhoAmI
+                component: WhoAmI,
+                meta: {
+                    breadcrumbName: '登录信息',
+                },
             },
         ]
     },
@@ -45,14 +56,18 @@ const routes = [
         path: "/personal-center",
         name: "PersonalCenter",
         component: PersonalCenter,
+        meta: {
+            breadcrumbName: '个人中心',
+        },
         children: [
             {
                 path: "/create-member",
                 name: "CreateMember",
                 component: CreateMember,
                 meta: {
+                    breadcrumbName: '创建成员',
                     requires_login: true,
-                    //permission: 4,
+                    permission: 4,
                 }
             },
             {
@@ -60,8 +75,9 @@ const routes = [
                 name: "ManageMember",
                 component: ManageMember,
                 meta: {
+                    breadcrumbName: '管理成员',
                     requires_login: true,
-                    //permission: 4,
+                    permission: 4,
                 }
             },
             {
@@ -69,8 +85,9 @@ const routes = [
                 name: "ManageMyInfo",
                 component: ManageMyInfo,
                 meta: {
+                    breadcrumbName: '管理个人信息',
                     requires_login: true,
-                    //permission: 3,
+                    permission: 3,
                 }
             },
 
@@ -79,8 +96,9 @@ const routes = [
                 name: "CreateCourse",
                 component: CreateCourse,
                 meta: {
+                    breadcrumbName: '创建课程',
                     requires_login: true,
-                    //permission: 6,
+                    permission: 6,
                 }
             },
             {
@@ -88,8 +106,9 @@ const routes = [
                 name: "ManageCourse",
                 component: ManageCourse,
                 meta: {
+                    breadcrumbName: '管理课程',
                     requires_login: true,
-                    //permission: 6,
+                    permission: 6,
                 }
             },
 
@@ -98,8 +117,9 @@ const routes = [
                 name: "BindCourse",
                 component: BindCourse,
                 meta: {
+                    breadcrumbName: '绑定课程',
                     requires_login: true,
-                    //permission: 6,
+                    permission: 6,
                 }
             },
             {
@@ -107,8 +127,9 @@ const routes = [
                 name: "UnbindCourse",
                 component: UnbindCourse,
                 meta: {
+                    breadcrumbName: '解绑课程',
                     requires_login: true,
-                    // permission: 6,
+                    permission: 6,
                 }
             },
             {
@@ -116,8 +137,9 @@ const routes = [
                 name: "ViewBindCourse",
                 component: ViewBindCourse,
                 meta: {
+                    breadcrumbName: '查看绑定课程',
                     requires_login: true,
-                    // permission: 6,
+                    permission: 2,
                 }
             },
             {
@@ -129,6 +151,13 @@ const routes = [
                 }
             },
         ]
+    },
+
+    // 将匹配所有内容并将其放在 `$route.params.pathMatch` 下
+    {
+        path: '/403',
+        name: 'Forbidden',
+        component: Forbidden
     },
 
     // 将匹配所有内容并将其放在 `$route.params.pathMatch` 下
@@ -146,9 +175,21 @@ export const router = createRouter({
 
 
 router.beforeEach((to, from, next) => {
-    if (to.meta.requires_login) {  // 判断该路由是否需要登录权限
+    if (to.meta['requires_login']) {  // 判断该路由是否需要登录权限
         if (store.state.logged_in && store.state.userid) {  // 通过vuex state获取当前的token是否存在
-            next();
+            if (!to.meta['permission']) next();
+            else if ((store.state.user_type === 1 && to.meta['permission'] & 0x4)   // admin
+                || (store.state.user_type === 3 && to.meta['permission'] & 0x2)     // teacher
+                || (store.state.user_type === 2 && to.meta['permission'] & 0x1)) {    // student
+
+                console.log("authorization passed");
+                next();
+            } else {
+                console.log("authorization FAILED");
+                next({
+                    path: '/403',
+                })
+            }
         } else {
             next({
                 path: '/login',
