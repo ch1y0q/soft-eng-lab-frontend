@@ -74,7 +74,7 @@
               <span>学生个人信息维护</span>
             </span>
             </template>
-            <a-menu-item name="list-selected-course-a-menu-item" key="ManageCourse">
+            <a-menu-item name="list-selected-course-a-menu-item" key="ViewCourse">
               查看所有课程
             </a-menu-item>
             <a-menu-item name="select-course-a-menu-item" key="SelectCourse">

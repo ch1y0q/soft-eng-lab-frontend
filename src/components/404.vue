@@ -1,6 +1,6 @@
 <template>
   <div id="not-found-msg">
-    不好意思，我们没有您要找的页面。也许，检查一下网址再试试？
+    不好意思，我们没有要找的页面。也许，检查一下网址再试试？
   </div>
   <div><router-link to="/">返回首页</router-link></div>
 </template>
