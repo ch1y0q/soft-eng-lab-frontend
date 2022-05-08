@@ -1,5 +1,6 @@
 import {createRouter, createWebHashHistory} from "vue-router"
 import store from "@/store";
+import DropCourse from "@/components/student/DropCourse";
 
 const NotFound = () => import("@/components/404")
 const Forbidden = () => import("@/components/403")
@@ -156,6 +157,16 @@ const routes = [
                 component: ViewCourse,
                 meta: {
                     breadcrumbName: '查看所有课程',
+                    requires_login: true,
+                    permission: 1,
+                }
+            },
+            {
+                path: "/drop-course",
+                name: "DropCourse",
+                component: DropCourse,
+                meta: {
+                    breadcrumbName: '退选课程',
                     requires_login: true,
                     permission: 1,
                 }
