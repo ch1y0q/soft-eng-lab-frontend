@@ -1,6 +1,5 @@
 import {createRouter, createWebHashHistory} from "vue-router"
 import store from "@/store";
-import DropCourse from "@/components/student/DropCourse";
 
 const NotFound = () => import("@/components/404")
 const Forbidden = () => import("@/components/403")
@@ -24,6 +23,7 @@ const UnbindCourse = () => import("@/components/teacher/UnbindCourse")
 const ViewBindCourse = () => import('@/components/teacher/ViewBindCourse')
 
 const ViewCourse = () => import("@/components/student/ViewCourse")
+const DropCourse = () => import("@/components/student/DropCourse")
 
 /** Permission bits:
  * 0b100: Allow admin
