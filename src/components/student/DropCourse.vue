@@ -125,5 +125,23 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.DropCourseList {
+  max-width: 600px;
+  margin: 0 auto;
+}
 
+.item_details_label {
+  font-size: smaller;
+  font-weight: lighter;
+  color: gray;
+}
+
+.item_details_content {
+  font-size: large;
+  font-weight: normal;
+}
+
+.antd_list_item {
+  border-bottom: thin solid #919191;
+}
 </style>
